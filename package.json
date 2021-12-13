@@ -1,0 +1,48 @@
+{
+  "name": "react-native-audio-recorder-player",
+  "version": "3.2.0",
+  "description": "React Native Audio Recorder and Player.",
+  "homepage": "https://github.com/dooboolab/react-native-audio-recorder-player",
+  "main": "index.ts",
+  "types": "index.d.ts",
+  "postinstall": "dooboolab-welcome postinstall",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && flowgen index.d.ts -o index.js.flow",
+    "lint": "eslint -c .eslintrc.js 'index.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dooboolab/react-native-audio-recorder-player"
+  },
+  "keywords": [
+    "react-native",
+    "audio",
+    "sound",
+    "record",
+    "recorder",
+    "player"
+  ],
+  "author": "dooboolab",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "dependencies": {
+    "dooboolab-welcome": "^1.3.2"
+  },
+  "devDependencies": {
+    "@dooboo/eslint-config": "^0.8.5",
+    "@types/eslint": "^7.28.0",
+    "@types/react": "17.0.22",
+    "@types/react-native": "^0.65.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "flow-bin": "^0.160.1",
+    "flowgen": "^1.14.1",
+    "prettier": "^2.4.1",
+    "typescript": "^4.4.3"
+  }
+}
