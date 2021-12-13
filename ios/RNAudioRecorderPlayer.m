@@ -30,7 +30,7 @@ RCT_EXTERN_METHOD(setVolume:(float)volume
                   resolve:(RCTPromiseResolveBlock) resolve
                   rejecter:(RCTPromiseRejectBlock) reject);
 
-RCT_EXTERN_METHOD(startPlayer:(NSString*)path,
+RCT_EXTERN_METHOD(startPlayer:(NSString*)path
                   onIntSpk: (BOOL) internalSpk
                   resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject);
