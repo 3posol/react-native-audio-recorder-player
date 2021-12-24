@@ -317,7 +317,11 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         audioSession = AVAudioSession.sharedInstance()
 
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.defaultToSpeaker, AVAudioSession.CategoryOptions.allowBluetooth])
+            if(onIntSpk){
+                try audioSession.setCategory(.playAndRecord, mode: .default, options:[AVAudioSession.CategoryOptions.allowAirPlay, AVAudioSession.CategoryOptions.allowBluetooth])
+            }else{
+                try audioSession.setCategory(.playAndRecord, mode: .default, options:[AVAudioSession.CategoryOptions.defaultToSpeaker, AVAudioSession.CategoryOptions.allowBluetooth])
+            }
             try audioSession.setActive(true)
         } catch {
             reject("RNAudioPlayerRecorder", "Failed to play", nil)
