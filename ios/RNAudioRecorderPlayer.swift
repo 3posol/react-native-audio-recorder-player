@@ -25,6 +25,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
     var audioPlayer: AVPlayer!
     var playTimer: Timer?
     var timeObserverToken: Any?
+    var isStereoSupported: Bool = false
 
     override static func requiresMainQueueSetup() -> Bool {
       return true
@@ -201,7 +202,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
             let settings = [
                 AVSampleRateKey: sampleRate!,
                 AVFormatIDKey: avFormat!,
-                AVNumberOfChannelsKey: numberOfChannel!,
+                AVNumberOfChannelsKey: isStereoSupported ? 2 : 1,
                 AVEncoderAudioQualityKey: audioQuality!,
                 AVLinearPCMBitDepthKey: avLPCMBitDepth ?? AVLinearPCMBitDepthKey.count,
                 AVLinearPCMIsBigEndianKey: avLPCMIsBigEndian ?? true,
@@ -234,8 +235,46 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
                 reject("RNAudioPlayerRecorder", "Error occured during recording", nil)
             }
         }
-
+        
+        let front = AVAudioSession.Orientation.front
+        let bottom = AVAudioSession.Orientation.bottom
+        
+        let selectedSource = numberOfChannel == 2 ? front : bottom;
+        
         audioSession = AVAudioSession.sharedInstance()
+        enableBuiltInMic(session: audioSession)
+
+        guard let preferredInput = audioSession.preferredInput,
+              let dataSources = preferredInput.dataSources,
+              let newDataSource = dataSources.first(where: { $0.dataSourceName == selectedSource.rawValue }),
+              let supportedPolarPatterns = newDataSource.supportedPolarPatterns else {return}
+
+        do {
+            if #available(iOS 14.0, *) {
+                isStereoSupported = supportedPolarPatterns.contains(.stereo)
+            } else {
+                isStereoSupported = false
+            }
+            
+            // If the data source supports stereo, set it as the preferred polar pattern.
+            if isStereoSupported {
+                // Set the preferred polar pattern to stereo.
+                if #available(iOS 14.0, *) {
+                    try newDataSource.setPreferredPolarPattern(.stereo)
+                }
+            }
+
+            // Set the preferred data source and polar pattern.
+            try preferredInput.setPreferredDataSource(newDataSource)
+
+            // Update the input orientation to match the current user interface orientation.
+            if #available(iOS 14.0, *) {
+                try audioSession.setPreferredInputOrientation(AVAudioSession.StereoOrientation(rawValue: 1)!)
+            }
+
+        } catch {
+            fatalError("Unable to select the \(front) data source.")
+        }
 
         do {
             try audioSession.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.defaultToSpeaker, AVAudioSession.CategoryOptions.allowBluetooth])
@@ -417,5 +456,23 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
     ) -> Void {
         audioPlayer.volume = volume
         resolve(volume)
+    }
+    
+    
+    private func enableBuiltInMic(session: AVAudioSession) {
+        
+        // Find the built-in microphone input.
+        guard let availableInputs = session.availableInputs,
+              let builtInMicInput = availableInputs.first(where: { $0.portType == .builtInMic }) else {
+            print("The device must have a built-in microphone.")
+            return
+        }
+        
+        // Make the built-in microphone input the preferred input.
+        do {
+            try session.setPreferredInput(builtInMicInput)
+        } catch {
+            print("Unable to set the built-in mic as the preferred input.")
+        }
     }
 }
