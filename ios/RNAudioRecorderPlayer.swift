@@ -377,17 +377,22 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
                 print("#configureAudioSessionToEarSpeaker Error \(error.localizedDescription)")
             }
         }
-        
-        setAudioFileURL(path: path)
-        audioPlayerItem = AVPlayerItem(url: audioFileURL!)
+        if(path != "DEFAULT"){
+            let url = URL(string: path)
+            let item = AVPlayerItem(url: url!)
+            audioPlayer = AVPlayer(playerItem: item)
+        }else{
+            setAudioFileURL(path: path)
+            audioPlayerItem = AVPlayerItem(url: audioFileURL!)
 
-        if (audioPlayer == nil) {
-            audioPlayer = AVPlayer(playerItem: audioPlayerItem)
-        } else {
-            audioPlayer.replaceCurrentItem(with: audioPlayerItem)
+            if (audioPlayer == nil) {
+                audioPlayer = AVPlayer(playerItem: audioPlayerItem)
+            } else {
+                audioPlayer.replaceCurrentItem(with: audioPlayerItem)
+            }
+            addPeriodicTimeObserver()
         }
 
-        addPeriodicTimeObserver()
         audioPlayer.play()
         resolve(audioFileURL?.absoluteString)
     }
