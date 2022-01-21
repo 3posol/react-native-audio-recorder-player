@@ -2,6 +2,7 @@ package com.dooboolab.audiorecorderplayer
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -198,7 +199,15 @@ class RNAudioRecorderPlayerModule(private val reactContext: ReactApplicationCont
         }
 
         if(onIntSpk) {
-            mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            mediaPlayer!!.setAudioAttributes(AudioAttributes
+                    .Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .build())
+        }else{
+            mediaPlayer!!.setAudioAttributes(AudioAttributes
+                    .Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build())
         }
 
         try {
